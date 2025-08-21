@@ -17,14 +17,30 @@
     return btn;
   };
 
-  NS.createPanel = function () {
+  NS.createPanel = function (savedState = {}) {
     const host = document.createElement('div');
     host.id = 'cgpt-pager-host';
-    Object.assign(host.style, {
+    
+    // Apply saved position and size if available
+    const defaultStyle = {
       all:'initial', position:'fixed', zIndex:'999999999', right:'16px', bottom:'16px',
       width:'480px', maxWidth:'92vw', height:'580px', maxHeight:'82vh',
       borderRadius:'14px', overflow:'hidden', background:'transparent'
-    });
+    };
+    
+    if (savedState.position) {
+      defaultStyle.left = savedState.position.left || 'auto';
+      defaultStyle.top = savedState.position.top || 'auto';
+      defaultStyle.right = savedState.position.right || 'auto';
+      defaultStyle.bottom = savedState.position.bottom || 'auto';
+    }
+    
+    if (savedState.size) {
+      defaultStyle.width = savedState.size.width || defaultStyle.width;
+      defaultStyle.height = savedState.size.height || defaultStyle.height;
+    }
+    
+    Object.assign(host.style, defaultStyle);
 
     const shadow = host.attachShadow({ mode: 'open' });
 
@@ -111,7 +127,7 @@
     shadow.append(style, wrap);
     document.documentElement.appendChild(host);
 
-    // Drag to move
+    // Drag to move with position saving
     (function () {
       const drag = wrap.querySelector('.dragbar');
       let sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
@@ -126,10 +142,30 @@
         host.style.left = (ox + e.clientX - sx) + 'px';
         host.style.top  = (oy + e.clientY - sy) + 'px';
       });
-      window.addEventListener('mouseup', () => { dragging = false; });
+      window.addEventListener('mouseup', () => { 
+        if (dragging) {
+          // Save new position
+          const savePosition = () => {
+            try {
+              const current = JSON.parse(localStorage.getItem('chatgpt-pager-state') || '{}');
+              current.position = {
+                left: host.style.left,
+                top: host.style.top,
+                right: 'auto',
+                bottom: 'auto'
+              };
+              localStorage.setItem('chatgpt-pager-state', JSON.stringify(current));
+            } catch (e) {
+              console.warn('[ChatGPT Pager] Error saving position:', e);
+            }
+          };
+          savePosition();
+        }
+        dragging = false; 
+      });
     })();
 
-    // Resize
+    // Resize with size saving
     (function () {
       const r = wrap.querySelector('.resize');
       let sw = 0, sh = 0, sx = 0, sy = 0, resizing = false;
@@ -143,7 +179,25 @@
         host.style.width = Math.max(360, sw + (e.clientX - sx)) + 'px';
         host.style.height = Math.max(420, sh + (e.clientY - sy)) + 'px';
       });
-      window.addEventListener('mouseup', () => { resizing = false; });
+      window.addEventListener('mouseup', () => { 
+        if (resizing) {
+          // Save new size
+          const saveSize = () => {
+            try {
+              const current = JSON.parse(localStorage.getItem('chatgpt-pager-state') || '{}');
+              current.size = {
+                width: host.style.width,
+                height: host.style.height
+              };
+              localStorage.setItem('chatgpt-pager-state', JSON.stringify(current));
+            } catch (e) {
+              console.warn('[ChatGPT Pager] Error saving size:', e);
+            }
+          };
+          saveSize();
+        }
+        resizing = false; 
+      });
     })();
 
     return { host, wrap, shadow };
@@ -165,7 +219,7 @@
     if (sortDesc) filtered = filtered.reverse();
     count.textContent = `${filtered.length} items`;
 
-    const { page: cur, total, slice } = CGPTPager.paginate(filtered, page, CGPTPager.PAGE_SIZE);
+    const { page: cur, total, slice } = CGPTPager.paginate(filtered, page, CGPTPager.CONFIG.PAGE_SIZE);
 
     list.innerHTML = slice.map(it => `
       <div class="qa" data-qid="${it.qId}">
