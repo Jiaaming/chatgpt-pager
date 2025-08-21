@@ -1,5 +1,5 @@
 # ChatGPT Pager
-![20250820202750](https://raw.githubusercontent.com/Jiaaming/blogImage/main/pic/20250820202750.png)
+![example](https://raw.githubusercontent.com/Jiaaming/blogImage/main/pic/20250820204225.png)
 A lightweight Chrome extension that **paginates ChatGPT conversations** and displays them in a floating panel for easier browsing, searching, and reading.
 
 ## ✨ Core Features
