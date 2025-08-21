@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT Pager",
+  "version": "1.0.0",
+  "description": "Paginate ChatGPT conversations in a floating panel. Local-only.",
+  "permissions": [],
+  "host_permissions": ["https://chat.openai.com/*", "https://chatgpt.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://chat.openai.com/*", "https://chatgpt.com/*"],
+      "js": [
+        "content/parser.js",
+        "content/markdown.js",
+        "content/ui.js",
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
