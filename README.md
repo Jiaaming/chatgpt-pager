@@ -1,5 +1,5 @@
 # ChatGPT Pager
-
+[Download link](https://chromewebstore.google.com/detail/jkpmmncamhbafgmklfdgfcmojpjffnbh?utm_source=item-share-cb)
 ![ChatGPT Pager Demo](https://raw.githubusercontent.com/Jiaaming/blogImage/main/pic/20250820204225.png)
 
 Transform your long ChatGPT conversations into organized, searchable pages. Never lose track of important Q&A pairs again! 🚀
